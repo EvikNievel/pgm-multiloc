@@ -1,6 +1,8 @@
 {
   "name": "webapp",
-  "dependencies": {},
+  "dependencies": {
+    "sheetrock": "file:typings-custom/sheetrock.d.ts"
+  },
   "globalDependencies": {
     "foundation-sites": "registry:dt/foundation-sites#6.1.1+20160317120654",
     "foundation-tweaks": "file:typings-custom/foundation-tweaks.d.ts",

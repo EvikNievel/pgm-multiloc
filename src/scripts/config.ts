@@ -1,11 +1,14 @@
 export class config {
-  public static googleMapsKey: string = 'AIzaSyDzl3LF54-nmF2Z8G4AhuiMLw_slLxsYC4';
+  public static googleMapsKey: string = 'AIzaSyD-e8302g9ooyV7-hl4eWA3tKtqZJBImGg';
   public static latitude: number = 37.09024;
   public static longitude: number = -95.712891;
   public static zoom: number = 5;
-  public static leaps: number = 2;
-  public static steps: number = 6;
-  public static maxSteps: number = 100;
+  public static leaps: number = 1;
+  public static steps: number = 31;
+  public static minSteps: number = 20;
+  public static maxSteps: number = 34;
+  
+  public static scanLocationUrl: string = '[google spreadheet url here]';
 
   public static os: string = 'windows';
   public static scriptDelay: number = 300;

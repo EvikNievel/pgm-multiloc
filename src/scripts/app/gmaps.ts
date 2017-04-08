@@ -4,6 +4,9 @@ import loadGoogleMapsApi from 'load-google-maps-api';
 import {Location} from './app.ts';
 import {IMapOptions, Map} from './map.ts';
 import {IBeehiveOptions, Beehive} from './beehive.ts';
+import {IHiveOptions, Hive} from './hive.ts';
+
+import * as sheetrock from 'sheetrock';
 
 export class GMaps {
     private map: Map;
@@ -94,9 +97,27 @@ export class GMaps {
                 google.maps.event.clearListeners(this.gmap, 'click');
             }
         });
-
+		
         google.maps.event.addListenerOnce(this.gmap, 'idle', () => {
-            this.map.initMap(<IMapOptions>{ gmap: this.gmap });
+            this.map.initMap(<IMapOptions>{ gmap: this.gmap });	
+			
+			var map = this.map;
+			var scanLocationData;
+			sheetrock({
+				url: config.scanLocationUrl,
+				query: 'select A,B,C,D',
+				callback: function (error, options, response) {
+					if (!error) {
+						for (var i = 1; i < response.rows.length; i++) {
+							var row = response.rows[i];
+							new Hive(<IHiveOptions>{ center: new Location(row.cells.Latitude, row.cells.Longitude), steps: parseInt(row.cells.Steps), map: map, color: '#00F' }); 
+						}
+					}
+					else {
+						alert(error);
+					}
+				}
+			});
         });
 
     }

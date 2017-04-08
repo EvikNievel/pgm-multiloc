@@ -32,6 +32,7 @@ export class Map {
   public initMap(options: IMapOptions): void {
     this.options = options;
     let sliderOptions = $('#beehive-control .slider').data('zfPlugin').options;
+	sliderOptions.start = config.minSteps;
     sliderOptions.end = config.maxSteps;
     sliderOptions.initialStart = config.steps;
 

@@ -8,6 +8,7 @@ export interface IHiveOptions {
   center: Location;
   steps: number;
   index: number;
+  color: string;
 }
 export class Hive {
   private options: IHiveOptions;
@@ -22,6 +23,10 @@ export class Hive {
   constructor(options: IHiveOptions) {
     this.options = options;
     this.isActive = ko.observable(false);
+	
+	if (this.options.color == null){
+		this.options.color = '#0F0';
+	}
 
     let center = this.options.center.getLatLng();
     let radius = Util.getHiveRadius(this.options.steps);
@@ -55,7 +60,7 @@ export class Hive {
 
   public toggleActive(): void {
     this.isActive(!this.isActive());
-    this.mapObject.set('fillColor', this.isActive() ? '#0F0' : '#F00');
+    this.mapObject.set('fillColor', this.isActive() ? this.options.color : '#F00');
   }
 
   public addListener(): void {
