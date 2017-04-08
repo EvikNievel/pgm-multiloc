@@ -1,6 +1,7 @@
+import { Map } from './map.ts';
 import {Util, Location} from './app.ts';
 
-export function StaticHive(text, center, steps, map) {
+export function StaticHive(text: string, center: Location, steps: number, map: Map) {
     _StaticHive.prototype = new google.maps.OverlayView();
     function _StaticHive(text, center, steps, map) {
         const _center = google.maps.geometry.spherical.computeOffset(center.getLatLng(), 350, 0);
