@@ -105,7 +105,7 @@ export class GMaps {
 			var scanLocationData;
 			sheetrock({
 				url: config.scanLocationUrl,
-				query: 'select A,B,C,D',
+				query: 'select A,B,C,D,E',
 				callback: function (error, options, response) {
 					if (!error) {
 						for (var i = 1; i < response.rows.length; i++) {
