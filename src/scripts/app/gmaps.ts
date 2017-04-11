@@ -5,6 +5,7 @@ import {Location} from './app.ts';
 import {IMapOptions, Map} from './map.ts';
 import {IBeehiveOptions, Beehive} from './beehive.ts';
 import {IHiveOptions, Hive} from './hive.ts';
+import {StaticHive} from './staticHive.ts';
 
 import * as sheetrock from 'sheetrock';
 
@@ -110,7 +111,7 @@ export class GMaps {
 					if (!error) {
 						for (var i = 1; i < response.rows.length; i++) {
 							var row = response.rows[i];
-							new Hive(<IHiveOptions>{ center: new Location(row.cells.Latitude, row.cells.Longitude), steps: parseInt(row.cells.Steps), map: map, color: '#00F' }); 
+							new StaticHive(row.cells.DisplayName, new Location(row.cells.Latitude, row.cells.Longitude), row.cells.Steps, map);
 						}
 					}
 					else {

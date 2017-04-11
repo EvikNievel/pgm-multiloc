@@ -50,7 +50,6 @@ export class Map {
 
     // Tada!
     const center = new Location(39.290385, -76.612189);
-    new StaticHive('Baltimore', center, 34, this);
 
     ko.applyBindings(vm, document.getElementsByTagName('body')[0]);
   }
