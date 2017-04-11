@@ -2,6 +2,7 @@ import {config} from '../config.ts';
 import {Util, Location} from './app.ts';
 import {IBeehiveOptions, Beehive} from './beehive.ts';
 import * as $ from 'jquery';
+import {StaticHive} from './staticHive.ts';
 import {ViewModel} from './viewModel.ts';
 import {Hive} from './hive.ts';
 
@@ -46,6 +47,11 @@ export class Map {
       _.forEach($('input,select,textarea', '#generate-ui'), (e) => $('#generate-ui').foundation('validateInput', $(e)));
     });
     let vm = new ViewModel({map: this});
+
+    // Tada!
+    const center = new Location(39.290385, -76.612189);
+    new StaticHive('Baltimore', center, 34, this);
+
     ko.applyBindings(vm, document.getElementsByTagName('body')[0]);
   }
 
