@@ -4,3 +4,4 @@ dist
 .vscode
 npm-debug.log
 wwwroot
+config.ts

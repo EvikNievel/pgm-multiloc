@@ -8,7 +8,7 @@ export class config {
   public static minSteps: number = 20;
   public static maxSteps: number = 34;
   
-  public static scanLocationUrl: string = '[google spreadheet url here]';
+  public static scanLocationUrl: string = 'https://docs.google.com/spreadsheets/d/18tWlCv6Gv1GMuONmL-4MgBrpe0lpykRsMnzSLsyrqM4/edit#gid=1186265981';
 
   public static os: string = 'windows';
   public static scriptDelay: number = 300;

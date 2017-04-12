@@ -102,7 +102,7 @@ export class GMaps {
         google.maps.event.addListenerOnce(this.gmap, 'idle', () => {
             this.map.initMap(<IMapOptions>{ gmap: this.gmap });	
 			
-			var map = this.map;
+			var map = this.gmap;
 			var scanLocationData;
 			sheetrock({
 				url: config.scanLocationUrl,
@@ -111,7 +111,16 @@ export class GMaps {
 					if (!error) {
 						for (var i = 1; i < response.rows.length; i++) {
 							var row = response.rows[i];
-							new StaticHive(row.cells.DisplayName, new Location(row.cells.Latitude, row.cells.Longitude), row.cells.Steps, map);
+							var content = `
+								<div style="padding: 10px;">
+									<h5 style="text-align: center;">${row.cells.DisplayName}</h5>
+									<div><b>Location Name: </b> ${row.cells.Name}</div>
+									<div><b>Coordinates: </b> ${row.cells.Latitude}, ${row.cells.Longitude}</div>
+									<div><b>Steps: </b> ${row.cells.Steps}</div>
+								</div>
+							`;
+							
+							new StaticHive(content, new Location(row.cells.Latitude, row.cells.Longitude), row.cells.Steps, map);
 						}
 					}
 					else {
