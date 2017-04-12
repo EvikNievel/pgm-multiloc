@@ -7,15 +7,20 @@ import {IBeehiveOptions, Beehive} from './beehive.ts';
 import {IHiveOptions, Hive} from './hive.ts';
 import {StaticHive} from './staticHive.ts';
 
+import * as ko from 'knockout';
 import * as sheetrock from 'sheetrock';
 
 export class GMaps {
     private map: Map;
     private gmap: google.maps.Map;
     private geocoder: google.maps.Geocoder;
+	private hives: KnockoutObservableArray<StaticHive>;
+	public existingHives: StaticHive[];
 
     constructor() {
         this.map = new Map();
+		this.hives = ko.observableArray([]); 
+		
         loadGoogleMapsApi({
             key: config.googleMapsKey,
             libraries: ['places', 'geometry']
@@ -26,6 +31,10 @@ export class GMaps {
 
     public getMap(): Map {
         return this.map;
+    }
+
+    public getGMap(): google.maps.Map {
+        return this.gmap;
     }
 
     private initMap(): void {
@@ -100,31 +109,89 @@ export class GMaps {
         });
 		
         google.maps.event.addListenerOnce(this.gmap, 'idle', () => {
-            this.map.initMap(<IMapOptions>{ gmap: this.gmap });	
+            this.map.initMap(<IMapOptions>{ gmap: this });	
 			
 			var map = this.gmap;
+			var hives = this.hives;
 			var scanLocationData;
 			sheetrock({
 				url: config.scanLocationUrl,
-				query: 'select A,B,C,D,E',
-				callback: function (error, options, response) {
-					if (!error) {
-						for (var i = 1; i < response.rows.length; i++) {
-							var row = response.rows[i];
-							var content = `
-								<div style="padding: 10px;">
-									<h5 style="text-align: center;">${row.cells.DisplayName}</h5>
-									<div><b>Location Name: </b> ${row.cells.Name}</div>
-									<div><b>Coordinates: </b> ${row.cells.Latitude}, ${row.cells.Longitude}</div>
-									<div><b>Steps: </b> ${row.cells.Steps}</div>
-								</div>
-							`;
-							
-							new StaticHive(content, new Location(row.cells.Latitude, row.cells.Longitude), row.cells.Steps, map);
-						}
+				query: 'select A,B,C,D,E,F,G',
+				callback: function (locationError, locationOptions, locationResponse) {
+					if (!locationError) {
+						sheetrock({
+							url: config.areaRepUrl,
+							query: "select D,E,H,I,K,L",
+							callback: function (repError, repOptions, repResponse) {
+								if (!repError) {
+									for (var i = 1; i < locationResponse.rows.length; i++) {
+										var locationRow = locationResponse.rows[i];
+										var content = `
+											<div style="padding: 10px;">
+												<h5 style="text-align: center;">${locationRow.cells.DisplayName}</h5>
+												<div><b>Location Name: </b> ${locationRow.cells.Name}</div>
+												<div><b>Coordinates: </b> ${locationRow.cells.Latitude}, ${locationRow.cells.Longitude}</div>
+												<div><b>Steps: </b> ${locationRow.cells.Steps}</div>
+											</div>
+										`;
+										
+										for (var j = 1; j < repResponse.rows.length; j++) {
+											var repRow = repResponse.rows[j];
+											if (repRow.cells.Name == locationRow.cells.Name) {
+												content += `<div style="padding: 10px;"><b>Area Representative: </b>${repRow.cells.AreaRep}</div>`;
+												
+												if (repRow.cells.TwitterUrl.length > 0 ||
+													repRow.cells.FacebookUrl.length > 0 ||
+													repRow.cells.TelegramUrl.length > 0) {
+													
+													let feedsHtml = '';
+													if (repRow.cells.TwitterUrl.length > 0) {
+														feedsHtml += `<span style="padding: 5px;"><a href="${repRow.cells.TwitterUrl}" target="_blank"><img src="https://pogovaalerts.files.wordpress.com/2016/11/twitter.png" width="16"></a></span>`;
+													}
+													
+													if (repRow.cells.FacebookUrl.length > 0) {
+														feedsHtml += `<span style="padding: 5px;"><a href="${repRow.cells.FacebookUrl}" target="_blank"><img src="https://pogovaalerts.files.wordpress.com/2016/11/fb.jpg" width="16"></a></span>`;
+													}
+													
+													if (repRow.cells.TelegramUrl.length > 0) {
+														feedsHtml += `<span style="padding: 5px;"><a href="${repRow.cells.TelegramUrl}" target="_blank"><img src="https://pogovaalerts.files.wordpress.com/2016/11/apps-telegram-icon.png" width="16"></a></span>`;
+													}
+													
+													content += `<div style="padding: 10px;"><b>Feeds: </b> ${feedsHtml}</div>`;
+												}
+												
+												break;
+											}
+										}
+										
+										if (locationRow.cells.Notes.length > 0) {
+											content += `<div style="padding: 10px;">${locationRow.cells.Notes}</div>`;
+										}
+										
+										let color = '#aaf';							
+										switch (parseInt(locationRow.cells.Type)) {
+											case 2:
+												color = '#e60073';
+												break;
+											case 3:
+												color = '#6b00b3';
+												break;
+											case 4:
+												color = '#F5B800';
+												break;
+										}
+										
+										hives.push(new StaticHive({ text: content, color: color, center: new Location(locationRow.cells.Latitude, locationRow.cells.Longitude), steps: locationRow.cells.Steps, map: map }));
+									}
+								}
+								else {
+									alert(repError);
+								}
+							}
+						});
 					}
 					else {
-						alert(error);
+						alert(locationError);
 					}
 				}
 			});

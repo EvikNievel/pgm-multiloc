@@ -1,4 +1,5 @@
 import {Map} from './map.ts';
+import {GMaps} from './gmaps.ts';
 import {Hive} from './hive.ts';
 import {ICommandTemplate, config} from '../config.ts';
 
@@ -8,6 +9,7 @@ import * as _ from 'lodash';
 
 export interface IViewModelOptions {
     map: Map;
+	gmap: GMaps;
 }
 export class ViewModel {
     private options: IViewModelOptions;

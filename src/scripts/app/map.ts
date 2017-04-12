@@ -5,12 +5,13 @@ import * as $ from 'jquery';
 import {StaticHive} from './staticHive.ts';
 import {ViewModel} from './viewModel.ts';
 import {Hive} from './hive.ts';
+import {GMaps} from './gmaps.ts';
 
 import * as ko from 'knockout';
 import * as _ from 'lodash';
 
 export interface IMapOptions {
-  gmap: google.maps.Map;
+  gmap: GMaps;
 }
 
 export class Map {
@@ -46,7 +47,7 @@ export class Map {
     $('#generate-ui-wrapper').on('open.zf.reveal', () => {
       _.forEach($('input,select,textarea', '#generate-ui'), (e) => $('#generate-ui').foundation('validateInput', $(e)));
     });
-    let vm = new ViewModel({map: this});
+    let vm = new ViewModel({map: this, gmap: this.options.gmap});
 
     // Tada!
     const center = new Location(39.290385, -76.612189);
@@ -61,7 +62,7 @@ export class Map {
   }
 
   public addMapObject(mapObject: google.maps.MVCObject): void {
-      mapObject.set('map', this.options.gmap);
+      mapObject.set('map', this.options.gmap.getGMap());
   }
 
   public removeMapObject(mapObject: google.maps.MVCObject): google.maps.MVCObject {

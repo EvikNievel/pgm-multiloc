@@ -1,63 +1,74 @@
 import { Map } from './map.ts';
 import {Util, Location} from './app.ts';
 
-export function StaticHive(text: string, center: Location, steps: number, map: google.maps.Map) {
-    function _StaticHive(text, center, steps, map) {
-        const _center = google.maps.geometry.spherical.computeOffset(center.getLatLng(), 350, 0);
-        this.bounds_ = new google.maps.LatLngBounds(_center, _center);
-        this.text_ = text;
-        this.map_ = map;
-		
-		var persistInfoWindow = false;
+export interface IStaticHiveOptions {
+	text: string;
+	center: Location;
+	steps: number;
+	map: google.maps.Map;
+	color: string;
+}
 
-        let radius = Util.getHiveRadius(steps);
+export class StaticHive {
+  private options: IStaticHiveOptions;
 
-        let computeOffset = google.maps.geometry.spherical.computeOffset;
-        let hexPoints: google.maps.LatLng[] = [
-            computeOffset(_center, radius, 30),
-            computeOffset(_center, radius, 90),
-            computeOffset(_center, radius, 150),
-            computeOffset(_center, radius, 210),
-            computeOffset(_center, radius, 270),
-            computeOffset(_center, radius, 330)
-        ];
-
-        var hex = new google.maps.Polygon({
-            paths: hexPoints,
-            fillColor: '#aaf',
-            fillOpacity: 0.3,
-            strokeWeight: 1,
-            zIndex: 2,
-        });
-		
-		var infoWindow = new google.maps.InfoWindow({ content: text });
-		hex.setMap(map);
-
-        google.maps.event.addListener(hex, 'click', function(event) {
-		  if (!persistInfoWindow) {
-			  infoWindow.setPosition(event.latLng);
-			  infoWindow.open(map);  
-			  persistInfoWindow = true;
-		  }
-        });
-
-		google.maps.event.addListener(infoWindow, 'closeclick', function () {
-			persistInfoWindow = false;
-		})
-
-        google.maps.event.addListener(hex, 'mouseover', function(event) {
-			if (!persistInfoWindow) {
-				infoWindow.setPosition(event.latLng);
-				infoWindow.open(map);
-			}
-        });
-
-        google.maps.event.addListener(hex, 'mouseout', function(event) {
-			if (!persistInfoWindow) {
-				infoWindow.close();	
-			}
-        });
-    }
+  constructor(options: IStaticHiveOptions) {
+	this.options = options;
+    const center = google.maps.geometry.spherical.computeOffset(this.options.center.getLatLng(), 350, 0);
+	let color = '#aaf';
 	
-    new _StaticHive(text, center, steps, map);
+	if (this.options.color.length > 0) {
+		color = this.options.color;
+	}
+	
+	let persistInfoWindow = false;
+	let radius = Util.getHiveRadius(this.options.steps);
+
+	const computeOffset = google.maps.geometry.spherical.computeOffset;
+	const hexPoints: google.maps.LatLng[] = [
+		computeOffset(center, radius, 30),
+		computeOffset(center, radius, 90),
+		computeOffset(center, radius, 150),
+		computeOffset(center, radius, 210),
+		computeOffset(center, radius, 270),
+		computeOffset(center, radius, 330)
+	];
+
+	const hex = new google.maps.Polygon({
+		paths: hexPoints,
+		fillColor: color,
+		fillOpacity: 0.3,
+		strokeWeight: 1,
+		zIndex: 2,
+	});
+	
+	const infoWindow = new google.maps.InfoWindow({ content: this.options.text });
+	hex.setMap(this.options.map);
+
+	const map = this.options.map;
+	google.maps.event.addListener(hex, 'click', function(event) {
+	  if (!persistInfoWindow) {
+	      infoWindow.setPosition(google.maps.geometry.spherical.computeOffset(event.latLng, 30, 0));
+		  infoWindow.open(map);  
+		  persistInfoWindow = true;
+	  }
+	});
+
+	google.maps.event.addListener(infoWindow, 'closeclick', function () {
+		persistInfoWindow = false;
+	})
+
+	google.maps.event.addListener(hex, 'mouseover', function(event) {
+		if (!persistInfoWindow) {
+			infoWindow.setPosition(google.maps.geometry.spherical.computeOffset(event.latLng, 30, 0));
+			infoWindow.open(map);
+		}
+	});
+
+	google.maps.event.addListener(hex, 'mouseout', function(event) {
+		if (!persistInfoWindow) {
+			infoWindow.close();	
+		}
+	});
+  }
 }

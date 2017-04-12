@@ -62,10 +62,48 @@
     <!-- start main area -->
     <section id="mainArea" style="width:100%; height:100%;">
 		<div id="custom-map-controls">
-			<div class="row">
-				<div class="small-12 columns callout secondary">
-					<p>Search by general location or input precision latitude,longitude to add a new hive marker. Drag and resize to adjust the scan location. Click on a location to activate it to edit the step size, toggle the hives to be scanned, or remove it.</p>
+			<div class="panel-group">
+			  <div class="panel panel-default">
+				<div class="panel-heading">
+				  <h4 class="panel-title">
+					<a role="button" data-toggle="collapse" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+					  Expand for Coverage Tool Instructions
+					</a>
+				  </h4>
 				</div>
+				<div id="collapseOne" class="panel-collapse collapse">
+				  <div class="panel-body">					
+					<h5>***We recommend using a desktop browser for proper tool operation.***</h5>
+					<p>
+						Search by general location or input precision latitude,longitude to add a new hive marker.
+						Drag and resize to adjust the scan location. Click on a location to activate it to edit the step
+						size, toggle the hives to be scanned, or remove it.
+					</p>
+					<p>
+						Gain a few sponsors to help fund the initial location for at least 1 month. These sponsors will help secure the
+						area scans while we gain exposure via social media and bring in potential donors. By default, we start
+						our scans at a step size of 31. We request a donation of $91 to sustain scan costs for the first month. If you'd like
+						a different step size, mutiply that by 2.935483870967742 for an idea of the requested donation.
+						ie. For a step size of 34 you would do, 34 * 2.935483870967742 = $99.81.
+					</p>
+					<p>
+						To submit a new location request:
+					</p>
+					<ol>
+						<li>Take a screen shot of the area</li>
+						<li>Download the coordinates</li>
+						<li>Note the step size chosen</li>
+						<li>Post in the #scan_suggestions channel of our <a href="https://discord.gg/eyRxH4g" target="_blank">discord server</a> items 1, 2 &amp; 3.</li>
+					</ol>
+					<p>
+						<span style="color: #aaf;">Blue Hex - Existing Location</span><br/>
+						<span style="color: #e60073;">Pink Hex - Location queued for next batch</span><br/>
+						<span style="color: #6b00b3;">Purple Hex - Location Requested</span><br/>
+						<span style="color: #F5B800;">Orange Hex - Rental Hexes</span>
+					</p>
+				  </div>
+				</div>
+			  </div>
 			</div>
 			<div class="row">
 				<div id="place-control" class="small-12 medium-6 columns">
