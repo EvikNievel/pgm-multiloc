@@ -1,6 +1,7 @@
 import {Map} from './map.ts';
 import {GMaps} from './gmaps.ts';
 import {Hive} from './hive.ts';
+import {StaticHive} from './staticHive.ts';
 import {ICommandTemplate, config} from '../config.ts';
 
 import * as $ from 'jquery';
@@ -14,6 +15,7 @@ export interface IViewModelOptions {
 export class ViewModel {
     private options: IViewModelOptions;
     public activeHives: KnockoutObservable<Hive[]>;
+	public existingHives: KnockoutObservable<StaticHive[]>;
     public os: KnockoutObservable<string>;
     public accountsPerHive: KnockoutObservable<number>;
     public accountDirectory: KnockoutObservable<string>;
@@ -37,6 +39,7 @@ export class ViewModel {
     constructor(options: IViewModelOptions) {
         this.options = options;
         this.activeHives = ko.computed(() => this.getActiveHives());
+        this.existingHives = ko.computed(() => this.getExistingHives());
         this.rocketmapDirectory = ko.observable(config.rocketmapDirectory);
 
         this.os = ko.observable(config.os);
@@ -103,6 +106,10 @@ export class ViewModel {
         return this.options.map.activeHives();
     }
 
+    private getExistingHives(): StaticHive[] {
+        return this.options.gmap.getExistingHives();
+    }
+
     private getActiveTemplates(): Templates {
         return this.os() === 'windows' ? this.windowsTemplates : this.linuxTemplates;
     }
@@ -159,6 +166,26 @@ ${this.replaceVariables(templates.delay.value(), {
     public coordsFile (): void {
         let script = _.join(_.map(this.activeHives(), (h) => h.getCenter().toString()), '\n');
         this.downloadScript(script, 'coords.txt');
+    }
+
+    public geofenceFile (): void {
+        let script = '';
+		_.each(this.activeHives(), function(h) {
+			script += `[ENTER_GEOFENCE_NAME_HERE]\r\n${h.getHexPoints()}\r\n\r\n`;
+		});
+		
+        this.downloadScript(script, 'geofence.txt');
+    }
+
+    public generateGeofences (): void {
+        let script = '';
+		_.each(this.existingHives(), function(h) {
+			if (h.type == 'IMPLEMENTED') {
+				script += `[${h.name}]\r\n${h.getHexPoints()}\r\n\r\n`;
+			}
+		});
+		
+        this.downloadScript(script, 'staticGeofence.txt');
     }
 
     public downloadScript(script: string, filename: string): void {

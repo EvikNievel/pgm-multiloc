@@ -14,12 +14,13 @@ export class GMaps {
     private map: Map;
     private gmap: google.maps.Map;
     private geocoder: google.maps.Geocoder;
-	private hives: KnockoutObservableArray<StaticHive>;
-	public existingHives: StaticHive[];
+	private hives: StaticHive[];
+	private showControls: boolean;
 
     constructor() {
         this.map = new Map();
-		this.hives = ko.observableArray([]); 
+		this.hives = []; 
+		this.showControls = true;
 		
         loadGoogleMapsApi({
             key: config.googleMapsKey,
@@ -36,6 +37,10 @@ export class GMaps {
     public getGMap(): google.maps.Map {
         return this.gmap;
     }
+
+	public getExistingHives(): StaticHive[] {
+		return this.hives;
+	}
 
     private initMap(): void {
         this.gmap = new google.maps.Map(document.getElementById('map'), {
@@ -67,6 +72,19 @@ export class GMaps {
             }
         });
 
+        document.getElementById('toggle-coverage').addEventListener('click', () => {
+			if (this.showControls) {
+				$('#coverage-controls').hide();
+				$('#toggle-coverage').text('Show Coverage Tool');
+			}
+			else {
+				$('#coverage-controls').show();
+				$('#toggle-coverage').text('Show Coverage Only');
+			}
+			
+			this.showControls = !this.showControls;
+        });
+		
         document.getElementById('submit').addEventListener('click', () => {
             this.geocoder = new google.maps.Geocoder;
 
@@ -116,7 +134,7 @@ export class GMaps {
 			var scanLocationData;
 			sheetrock({
 				url: config.scanLocationUrl,
-				query: 'select A,B,C,D,E,F,G',
+				query: 'select A,B,C,D,E,F,G order by A',
 				callback: function (locationError, locationOptions, locationResponse) {
 					if (!locationError) {
 						sheetrock({
@@ -168,20 +186,20 @@ export class GMaps {
 											content += `<div style="padding: 10px;">${locationRow.cells.Notes}</div>`;
 										}
 										
-										let color = '#aaf';							
-										switch (parseInt(locationRow.cells.Type)) {
-											case 2:
+										let color = '#aaf'; // Implemented
+										switch (locationRow.cells.Type.toUpperCase()) {
+											case 'QUEUED':
 												color = '#e60073';
 												break;
-											case 3:
+											case 'REQUESTED':
 												color = '#6b00b3';
 												break;
-											case 4:
+											case 'RENTAL':
 												color = '#F5B800';
 												break;
-										}
+										}										
 										
-										hives.push(new StaticHive({ text: content, color: color, center: new Location(locationRow.cells.Latitude, locationRow.cells.Longitude), steps: locationRow.cells.Steps, map: map }));
+										hives.push(new StaticHive({ name: locationRow.cells.Name, type: locationRow.cells.Type.toUpperCase(), text: content, color: color, center: new Location(locationRow.cells.Latitude, locationRow.cells.Longitude), steps: locationRow.cells.Steps, map: map }));
 									}
 								}
 								else {
@@ -196,6 +214,5 @@ export class GMaps {
 				}
 			});
         });
-
     }
 }

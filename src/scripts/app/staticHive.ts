@@ -1,7 +1,11 @@
 import { Map } from './map.ts';
 import {Util, Location} from './app.ts';
 
+import * as _ from 'lodash';
+
 export interface IStaticHiveOptions {
+	name: string;
+	type: string;
 	text: string;
 	center: Location;
 	steps: number;
@@ -11,10 +15,19 @@ export interface IStaticHiveOptions {
 
 export class StaticHive {
   private options: IStaticHiveOptions;
+  private hexPoints: google.maps.LatLng[];
+
+  get name(): string {
+    return this.options.name;
+  }
+
+  get type(): string {
+    return this.options.type;
+  }
 
   constructor(options: IStaticHiveOptions) {
 	this.options = options;
-    const center = google.maps.geometry.spherical.computeOffset(this.options.center.getLatLng(), 350, 0);
+    const center = this.options.center.getLatLng();
 	let color = '#aaf';
 	
 	if (this.options.color.length > 0) {
@@ -25,7 +38,7 @@ export class StaticHive {
 	let radius = Util.getHiveRadius(this.options.steps);
 
 	const computeOffset = google.maps.geometry.spherical.computeOffset;
-	const hexPoints: google.maps.LatLng[] = [
+	this.hexPoints = [
 		computeOffset(center, radius, 30),
 		computeOffset(center, radius, 90),
 		computeOffset(center, radius, 150),
@@ -35,7 +48,7 @@ export class StaticHive {
 	];
 
 	const hex = new google.maps.Polygon({
-		paths: hexPoints,
+		paths: this.hexPoints,
 		fillColor: color,
 		fillOpacity: 0.3,
 		strokeWeight: 1,
@@ -71,4 +84,8 @@ export class StaticHive {
 		}
 	});
   }
+
+	public getHexPoints(): string {
+		return _.join(_.map(this.hexPoints, function(l) { return `${l.lat()},${l.lng()}`; }), '\r\n');
+	}
 }

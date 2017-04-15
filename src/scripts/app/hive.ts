@@ -2,6 +2,7 @@ import {Util, Location} from './app.ts';
 import {Map} from './map.ts';
 
 import * as ko from 'knockout';
+import * as _ from 'lodash';
 
 export interface IHiveOptions {
   map: Map;
@@ -15,6 +16,7 @@ export class Hive {
   private mapObject: google.maps.Polygon;
   public isActive: KnockoutObservable<boolean>;
   private activeListener: google.maps.MapsEventListener;
+  private hexPoints: google.maps.LatLng[];
 
   get steps(): number {
     return this.options.steps;
@@ -33,7 +35,7 @@ export class Hive {
 
     let computeOffset = google.maps.geometry.spherical.computeOffset;
 
-    let hexPoints: google.maps.LatLng[] = [
+    this.hexPoints = [
       computeOffset(center, radius, 30),
       computeOffset(center, radius, 90),
       computeOffset(center, radius, 150),
@@ -43,7 +45,7 @@ export class Hive {
     ];
 
     let hex = new google.maps.Polygon({
-      paths: hexPoints,
+      paths: this.hexPoints,
       fillOpacity: 0.3,
       strokeWeight: 1,
       zIndex: 2,
@@ -74,4 +76,8 @@ export class Hive {
   public getCenter(): Location {
     return this.options.center;
   }
+
+	public getHexPoints(): string {
+		return _.join(_.map(this.hexPoints, function(l) { return `${l.lat()},${l.lng()}`; }), '\r\n');
+	}
 }
